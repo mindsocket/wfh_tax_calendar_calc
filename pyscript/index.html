@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WFH Hours Calculator from Google Calendar exports</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link rel="stylesheet" href="https://pyscript.net/releases/2025.3.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2025.3.1/core.js"></script>
+</head>
+
+<body>
+    <header class="container">
+        <h1>WFH Tax Calendar Analysis</h1>
+    </header>
+    <main class="container">
+        <section>
+            <h2>What is this?</h2>
+            <p>The Australian Tax Office (ATO) allows you to <a
+                    href="https://www.ato.gov.au/individuals-and-families/income-deductions-offsets-and-records/deductions-you-can-claim/working-from-home-expenses/fixed-rate-method">claim
+                    a deduction for work from home (WFH) expenses,
+                    using a fixed-rate deduction method</a>. This method requires that you keep a record of those work
+                hours. One way to do that is with a separate Google Calendar, added to an existing account. This tool helps you analyse your work from home hours based on entries in such a calendar.
+            </p>
+
+            <h2>Instructions</h2>
+            <h3>Set up a dedicated "WFH" calendar in Google Calendar</h3>
+            <div>
+                <div>
+                    <p>First, ideally at the start of a tax year, set up a dedicated calendar in your Google Calendar account to use for tracking
+                        work from home hours. Click the <mark>+</mark> icon next to <mark>Other calendars</mark> and select <mark>Create new calendar</mark>.</p>
+                    <p>It's recommended to create recurring events for your known work from home days ahead of time. Then you can add/delete/edit
+                        individual entries throughout the year to reflect the actual hours worked from home. This will help you maintain an accurate record.</p>
+                    <p>If you need to you can cross-check your WFH calendar with information in your main work calendar or other records of holidays, leave, etc.</p>
+                    <p><strong>Important</strong>: All entries in the WFH calendar are counted as work from home hours. This calendar should not
+                        contain any other events.</p>
+                </div>
+                <div class="grid">
+                    <div>
+                        <img src="./assets/create_calendar.png" alt="Create Calendar" width="300px">
+                    </div>
+                    <div>
+                        <img src="./assets/recurring_entry.png" alt="Recurring Entry" width="300px">
+                    </div>
+                </div>
+            </div>
+            <h3>Analyse your WFH Google Calendar</h3>
+            <div>
+                <div>
+                    <p>At tax time, export your WFH calendar and upload it here for analysis...</p>
+                    <ol>
+                        <li>Open Google Calendar.</li>
+                        <li>Click on the three dots next to your WFH calendar.</li>
+                        <li>Select <mark>Settings and sharing</mark> from the dropdown menu.</li>
+                        <li>Find and click the <mark>Export calendar</mark> option.</li>
+                    </ol>
+                    <p>Upload the exported file below, then select the financial year of interest. If all goes well you should see a summary of hours.</p>
+                </div>
+                <div class="grid">
+                    <div>
+                        <img src="./assets/settings_and_sharing.png" alt="Settings and Sharing" width="300px">
+                    </div>
+                    <div>
+                        <img src="./assets/export_calendar.png" alt="Export Calendar" width="300px">
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div>
+                <input type="file" id="icsFile" accept=".ics" py-change="handle_file_upload">
+            </div>
+
+            <div>
+                <label for="fyear">Financial Year:</label>
+                <select id="fyear" py-change="update_analysis">
+                </select>
+            </div>
+
+            <script>
+                function generateFinancialYears() {
+                    const currentDate = new Date();
+                    let currentYear = currentDate.getFullYear();
+                    const currentMonth = currentDate.getMonth() + 1; // Months are 0-based
+
+                    // Financial year starts in July, so adjust the year accordingly
+                    if (currentMonth >= 7) {
+                        currentYear += 1;
+                    }
+
+                    const fyearSelect = document.getElementById("fyear");
+                    fyearSelect.innerHTML = ""; // Clear existing options
+
+                    for (let i = 0; i < 3; i++) {
+                        const endYear = currentYear - i;
+                        const startYear = endYear - 1;
+                        const option = document.createElement("option");
+                        option.value = endYear;
+                        option.textContent = `${startYear}-${endYear}`;
+                        fyearSelect.appendChild(option);
+                    }
+                }
+
+                // Generate financial years on page load
+                window.onload = generateFinancialYears;
+            </script>
+        </section>
+        <section>
+            <div id="output" style="white-space: pre-wrap;"></div>
+        </section>
+    
+    </main>
+    <footer class="container">
+        <section>
+            <h2>How it works / privacy</h2>
+            <p>This tool uses PyScript to run a small Python program (~50 lines) in your browser. The code uses the <a
+                    href="https://pypi.org/project/recurring-ical-events/" target="_blank">recurring_ical_events</a>
+                library to read calendar entries, then calculates the total hours worked from home.</p>
+                <p>All analysis is done locally in your browser, and no personal data is sent to any server. Your privacy is
+                    respected.</p>
+
+            <h2>Disclaimer</h2>
+            <p>This tool is provided as-is with no guarantees as to accuracy nor reliability, and is not affiliated with
+                the Australian Tax Office (ATO).
+                The calculations are based on the data you provide, and it is your responsibility to ensure the accuracy
+                of your records and all calculations.</p>
+
+            <h2>Feedback / contributions / donations</h2>
+            <p>If you have suggestions or would like to contribute, please reach out to <a
+                    href="mailto:roger+wfhtaxcalc@mindsocket.com.au">roger+wfhtaxcalc@mindsocket.com.au</a>.</p>
+            <p>If you find this tool helpful, consider making a donation to the <a
+                    href="https://github.com/sponsors/niccokunzmann">maintainer of the recurring_ical_events
+                    library</a>.</p>
+        </section>
+        <section>
+            <p>Created by <a href="mailto:roger+wfhtaxcalc@mindsocket.com.au">Roger Barnes</a>, 2025</p>
+        </section>
+    </footer>
+    <py-script src="./main.py" config="./pyscript.json"></py-script>
+</body>
+
+</html>
